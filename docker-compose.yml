@@ -1,0 +1,64 @@
+***REMOVED***
+
+***REMOVED***
+***REMOVED***postgres:
+***REMOVED******REMOVED***image: postgres:15
+***REMOVED******REMOVED***container_name: postgres
+***REMOVED******REMOVED***restart: always
+***REMOVED******REMOVED***environment:
+***REMOVED******REMOVED******REMOVED***POSTGRES_DB: crm
+***REMOVED******REMOVED******REMOVED***POSTGRES_USER: postgres
+***REMOVED******REMOVED******REMOVED***POSTGRES_PASSWORD: postgres
+***REMOVED******REMOVED***ports:
+***REMOVED******REMOVED******REMOVED***- "5432:5432"
+***REMOVED******REMOVED******REMOVED***
+***REMOVED******REMOVED******REMOVED***- pg_crm_data:/var/lib/postgresql/data
+
+
+***REMOVED***zookeeper:
+***REMOVED******REMOVED***image: confluentinc/cp-zookeeper:7.5.0
+***REMOVED******REMOVED***environment:
+***REMOVED******REMOVED******REMOVED***ZOOKEEPER_CLIENT_PORT: 2181
+***REMOVED******REMOVED******REMOVED***ZOOKEEPER_TICK_TIME: 2000
+***REMOVED******REMOVED***ports:
+***REMOVED******REMOVED******REMOVED***- "2181:2181"
+
+***REMOVED***kafka:
+***REMOVED******REMOVED***image: confluentinc/cp-kafka:7.5.0
+***REMOVED******REMOVED***depends_on:
+***REMOVED******REMOVED******REMOVED***- zookeeper
+***REMOVED******REMOVED***ports:
+***REMOVED******REMOVED******REMOVED***- "9092:9092"
+***REMOVED******REMOVED******REMOVED***- "29092:29092"
+***REMOVED******REMOVED***environment:
+***REMOVED******REMOVED******REMOVED***KAFKA_BROKER_ID: 1
+***REMOVED******REMOVED******REMOVED***KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+***REMOVED******REMOVED******REMOVED***KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+***REMOVED******REMOVED******REMOVED***KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+***REMOVED******REMOVED******REMOVED***KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+***REMOVED***
+***REMOVED***telegram_parser:
+***REMOVED******REMOVED***build: ./TelegramParser/
+***REMOVED******REMOVED***container_name: telegram_parser
+***REMOVED******REMOVED***restart: always
+***REMOVED******REMOVED***depends_on: 
+***REMOVED******REMOVED******REMOVED***- kafka
+***REMOVED******REMOVED***ports:
+***REMOVED******REMOVED******REMOVED***- "8080:8080"
+
+***REMOVED***crm:
+***REMOVED******REMOVED***build: ./CRM/
+***REMOVED******REMOVED***container_name: crm-app
+***REMOVED******REMOVED***restart: always
+***REMOVED******REMOVED***environment:
+***REMOVED******REMOVED******REMOVED***SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crm
+***REMOVED******REMOVED******REMOVED***SPRING_DATASOURCE_USERNAME: postgres
+***REMOVED******REMOVED******REMOVED***SPRING_DATASOURCE_PASSWORD: postgres
+***REMOVED******REMOVED***depends_on:
+***REMOVED******REMOVED******REMOVED***- postgres
+***REMOVED******REMOVED******REMOVED***- kafka
+***REMOVED******REMOVED***ports:
+***REMOVED******REMOVED******REMOVED***- "80:8080"
+
+***REMOVED***
+***REMOVED***pg_crm_data:
