@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package post;
+
+option java_package = "ru.arklual.telegramparser.dto.protobuf";
+option java_outer_classname = "PostProto";
+
+message Post {
+  string id = 1;
+  string team_id = 2;
+  Source source = 3;
+  string content = 4;
+  repeated Media media = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+  PostStatus status = 8;
+  bool requires_moderation = 9;
+  bool is_cleaned = 12;
+  repeated Sink sink = 13;
+  repeated Filter filter = 14;
+}
+
+enum PostStatus {
+  DRAFT = 0;
+  PENDING_REVIEW = 1;
+  APPROVED = 2;
+  REJECTED = 3;
+  READY_TO_POST = 4;
+  POSTED = 5;
+  FAILED = 6;
+}
+
+message AddPhotoFilter {
+  string trigger = 1;
+  string photo_url = 2;
+}
+
+message RemovePhotoFilter {
+  string trigger = 1;
+}
+
+message TextReplaceFilter {
+  string trigger = 1;
+  string pattern = 2;
+  string replacement = 3;
+}
+
+message AIFilter {
+  string trigger = 1;
+  string prompt = 2;
+}
+
+message Filter {
+  oneof filter_type {
+    AddPhotoFilter add_photo = 1;
+    RemovePhotoFilter remove_photo = 2;
+    TextReplaceFilter text_replace = 3;
+    AIFilter ai_filter = 4;
+  }
+}
+
+message Media {
+  string url = 1;
+  MediaType type = 2;
+}
+
+enum MediaType {
+  PHOTO = 0;
+  VIDEO = 1;
+  AUDIO = 2;
+}
+
+message TelegramSink {
+  string chatId = 1;
+}
+
+message Sink {
+  oneof sink_type {
+    TelegramSink telegram_sink = 1;
+  }
+}
+
+message TelegramSource {
+  string chatId = 1;
+}
+
+message Source {
+  oneof source_type {
+    TelegramSource telegram_source = 1;
+  }
+}

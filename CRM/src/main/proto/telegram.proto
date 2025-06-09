@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package telegram;
+
+option java_package = "ru.arklual.crm.dto.protobuf";
+option java_outer_classname = "TelegramClientProto";
+
+import "google/protobuf/empty.proto";
+
+message TeamId {
+  string team_id = 1;
+}
+
+message TeamIdAndChannel {
+  string team_id = 1;
+  string channel_id = 2;
+}
+
+message ClientStatusResponse {
+  string team_id = 1;
+  string state = 2;
+  bool is_running = 3;
+}
+
+message MessageResponse {
+  string message = 1;
+}
+
+message LinkResponse {
+  string link = 1;
+}
+
+message ListClientsResponse {
+  repeated string team_ids = 1;
+}
+
+message ListenersResponse {
+  repeated string channel_ids = 1;
+}
+
+service TelegramClientService {
+  rpc StartClient(TeamId) returns (MessageResponse);
+  rpc StopClient(TeamId) returns (MessageResponse);
+  rpc GetClientStatus(TeamId) returns (ClientStatusResponse);
+  rpc GetQrLink(TeamId) returns (LinkResponse);
+  rpc ListClients(google.protobuf.Empty) returns (ListClientsResponse);
+}

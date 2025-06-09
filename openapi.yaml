@@ -1,0 +1,1126 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: 'http://localhost'
+    description: Generated server url
+paths:
+  '/api/teams/{id}':
+    get:
+      tags:
+        - team-controller
+      summary: Получить команду по ID
+      operationId: getTeamById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Команда не найдена
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+    put:
+      tags:
+        - team-controller
+      summary: Обновить команду
+      operationId: updateTeam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamRequest'
+        required: true
+      responses:
+        '200':
+          description: Команда обновлена
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Команда не найдена
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '409':
+          description: Имя команды занято
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - team-controller
+      summary: Удалить команду
+      operationId: deleteTeam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Команда удалена
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Команда не найдена
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  '/api/flows/{id}':
+    get:
+      tags:
+        - flow-controller
+      summary: Получить поток по ID
+      operationId: getFlow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Поток не найден
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+    put:
+      tags:
+        - flow-controller
+      summary: Обновить поток
+      operationId: updateFlow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowRequest'
+        required: true
+      responses:
+        '200':
+          description: Поток обновлён
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Поток не найден
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+    delete:
+      tags:
+        - flow-controller
+      summary: Удалить поток
+      operationId: deleteFlow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Поток удалён
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Поток не найден
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/telegram/stop:
+    post:
+      tags:
+        - telegram-client-controller
+      summary: Остановить Telegram-клиент для команды
+      operationId: stopClient
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Клиент остановлен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/telegram/start:
+    post:
+      tags:
+        - telegram-client-controller
+      summary: Запустить Telegram-клиент для команды
+      operationId: startClient
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Клиент запущен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/teams:
+    get:
+      tags:
+        - team-controller
+      summary: Получить все команды
+      operationId: getAllTeams
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - team-controller
+      summary: Создание команды
+      operationId: createTeam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamRequest'
+        required: true
+      responses:
+        '201':
+          description: Команда создана
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '400':
+          description: Ошибка валидации
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '409':
+          description: Команда с таким именем уже существует
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  '/api/teams/{id}/members':
+    get:
+      tags:
+        - team-controller
+      summary: Получить участников команды
+      operationId: getTeamMembers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - team-controller
+      summary: Добавить участника в команду
+      operationId: addTeamMember
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTeamMemberRequest'
+        required: true
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Недостаточно прав
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Команда или пользователь не найдены
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/flows:
+    get:
+      tags:
+        - flow-controller
+      summary: Получить список потоков по команде
+      operationId: listFlows
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Список потоков
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlowResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+    post:
+      tags:
+        - flow-controller
+      summary: Создание потока
+      operationId: createFlow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowRequest'
+        required: true
+      responses:
+        '200':
+          description: Поток создан
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '400':
+          description: Ошибка валидации или аргумента
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Пользователь не состоит в команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/auth/register:
+    post:
+      tags:
+        - auth-controller
+      summary: Регистрация нового пользователя
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '201':
+          description: Пользователь зарегистрирован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '400':
+          description: Ошибка валидации запроса
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '409':
+          description: Email уже зарегистрирован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/auth/login:
+    post:
+      tags:
+        - auth-controller
+      summary: Аутентификация пользователя
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+        required: true
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Неверный формат запроса
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Неверный email или пароль
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/approval/reject:
+    post:
+      tags:
+        - approval-controller
+      summary: Отклонить пост
+      operationId: rejectPost
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: postId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Пост отклонён
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Недостаточно прав
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/approval/approve:
+    post:
+      tags:
+        - approval-controller
+      summary: Одобрить пост
+      operationId: approvePost
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: postId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Пост одобрен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Недостаточно прав
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/users/me:
+    get:
+      tags:
+        - user-controller
+      summary: Получить данные текущего пользователя
+      operationId: getMe
+      responses:
+        '200':
+          description: Информация о пользователе
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/telegram/status:
+    get:
+      tags:
+        - telegram-client-controller
+      summary: Получить статус Telegram-клиента команды
+      operationId: getClientStatus
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Статус получен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TelegramClientStatusResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/telegram/qr:
+    get:
+      tags:
+        - telegram-client-controller
+      summary: Получить QR-ссылку авторизации Telegram-клиента
+      operationId: getQrLink
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ссылка получена
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/LinkResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/telegram/clients:
+    get:
+      tags:
+        - telegram-client-controller
+      summary: 'Список всех команд, где активен Telegram-клиент'
+      operationId: listClients
+      responses:
+        '200':
+          description: Список ID команд
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/teams/my-teams:
+    get:
+      tags:
+        - team-controller
+      summary: Получить команды текущего пользователя
+      operationId: getMyTeams
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamResponse'
+        '401':
+          description: Пользователь не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+  /api/approval/pending:
+    get:
+      tags:
+        - approval-controller
+      summary: Получить посты на модерации
+      operationId: getPendingPosts
+      parameters:
+        - name: teamId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Посты
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostResponse'
+        '401':
+          description: Не авторизован
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Нет доступа к команде
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      security:
+        - BearerAuth: []
+components:
+  schemas:
+    UpdateTeamRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 3
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+      required:
+        - name
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    TeamResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AIFilter:
+      type: object
+      properties:
+        trigger:
+          type: string
+        prompt:
+          type: string
+    AddPhotoFilter:
+      type: object
+      properties:
+        trigger:
+          type: string
+        photoUrl:
+          type: string
+    Filter:
+      type: object
+      properties:
+        addPhoto:
+          $ref: '#/components/schemas/AddPhotoFilter'
+        removePhoto:
+          $ref: '#/components/schemas/RemovePhotoFilter'
+        textReplace:
+          $ref: '#/components/schemas/TextReplaceFilter'
+        aiFilter:
+          $ref: '#/components/schemas/AIFilter'
+    FlowRequest:
+      type: object
+      properties:
+        teamId:
+          type: string
+          format: uuid
+        source:
+          $ref: '#/components/schemas/Source'
+        sinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sink'
+          maxItems: 2147483647
+          minItems: 1
+        requiresModeration:
+          type: boolean
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+      required:
+        - filters
+        - requiresModeration
+        - sinks
+        - source
+        - teamId
+    RemovePhotoFilter:
+      type: object
+      properties:
+        trigger:
+          type: string
+    Sink:
+      type: object
+      properties:
+        telegramSink:
+          $ref: '#/components/schemas/TelegramSink'
+    Source:
+      type: object
+      properties:
+        telegramSource:
+          $ref: '#/components/schemas/TelegramSource'
+    TelegramSink:
+      type: object
+      properties:
+        chatId:
+          type: string
+    TelegramSource:
+      type: object
+      properties:
+        chatId:
+          type: string
+    TextReplaceFilter:
+      type: object
+      properties:
+        trigger:
+          type: string
+        pattern:
+          type: string
+        replacement:
+          type: string
+    FlowResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        teamId:
+          type: string
+          format: uuid
+        source:
+          $ref: '#/components/schemas/Source'
+        sinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sink'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        requiresModeration:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+    CreateTeamRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 3
+      required:
+        - name
+    AddTeamMemberRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - EDITOR
+            - VIEWER
+      required:
+        - role
+        - userId
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+          maxLength: 2147483647
+          minLength: 0
+        password:
+          type: string
+      required:
+        - email
+        - name
+        - password
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+    AuthRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+    UserResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+    TelegramClientStatusResponse:
+      type: object
+      properties:
+        teamId:
+          type: string
+          format: uuid
+        state:
+          type: string
+        running:
+          type: boolean
+    LinkResponse:
+      type: object
+      properties:
+        link:
+          type: string
+    Media:
+      type: object
+      properties:
+        url:
+          type: string
+        mediaType:
+          type: string
+          enum:
+            - PHOTO
+            - VIDEO
+            - AUDIO
+            - UNRECOGNIZED
+    PostResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        teamId:
+          type: string
+          format: uuid
+        source:
+          $ref: '#/components/schemas/Source'
+        content:
+          type: string
+        media:
+          $ref: '#/components/schemas/Media'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - PENDING_REVIEW
+            - APPROVED
+            - REJECTED
+            - READY_TO_POST
+            - POSTED
+            - FAILED
+            - UNRECOGNIZED
+        requiresModeration:
+          type: boolean
+        sinks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sink'
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+        cleaned:
+          type: boolean
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

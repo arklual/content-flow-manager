@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package approval;
+
+option java_package = "ru.arklual.approvalservice.dto.protobuf";
+option java_outer_classname = "ApprovalServiceProto";
+
+import "post.proto";
+
+message TeamPostRequest {
+  string team_id = 1;
+  string post_id = 2;
+}
+
+message TeamIdRequest {
+  string team_id = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}
+
+message PostList {
+  repeated post.Post posts = 1;
+}
+
+service ApprovalService {
+  rpc ApprovePost(TeamPostRequest) returns (MessageResponse);
+  rpc RejectPost(TeamPostRequest) returns (MessageResponse);
+  rpc GetPendingPosts(TeamIdRequest) returns (PostList);
+}

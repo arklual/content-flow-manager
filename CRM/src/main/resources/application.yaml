@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: CRM
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+grpc:
+  telegram:
+    host: ${TELEGRAM_GRPC_HOST:telegram}
+    port: ${TELEGRAM_GRPC_PORT:9090}
+  approval:
+    host: ${APPROVAL_GRPC_HOST:approval}
+    port: ${APPROVAL_GRPC_PORT:6565}
+jwt:
+  secret: "ElLn03?'ALGG#nd#6fp0P*>n4V0'*0Wd'njF#O4FJ<rL]pAx4ESL-N[fE/F,f&`"
+  expiration: 36000000

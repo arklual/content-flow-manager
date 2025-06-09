@@ -1,64 +1,118 @@
-***REMOVED***
+version: '3.8'
 
-***REMOVED***
-***REMOVED***postgres:
-***REMOVED******REMOVED***image: postgres:15
-***REMOVED******REMOVED***container_name: postgres
-***REMOVED******REMOVED***restart: always
-***REMOVED******REMOVED***environment:
-***REMOVED******REMOVED******REMOVED***POSTGRES_DB: crm
-***REMOVED******REMOVED******REMOVED***POSTGRES_USER: postgres
-***REMOVED******REMOVED******REMOVED***POSTGRES_PASSWORD: postgres
-***REMOVED******REMOVED***ports:
-***REMOVED******REMOVED******REMOVED***- "5432:5432"
-***REMOVED******REMOVED******REMOVED***
-***REMOVED******REMOVED******REMOVED***- pg_crm_data:/var/lib/postgresql/data
+services:
+  
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: crm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_crm_data:/var/lib/postgresql/data
+  
+  mongo-telegram:
+    image: mongo:latest
+    container_name: mongo_telegram_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_telegram_data:/data/db
+
+  
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:::29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8080:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
+    depends_on: 
+      - kafka
+  
+  telegram:
+    build: ./TelegramClient/
+    container_name: telegram
+    restart: always
+    depends_on: 
+      - kafka
+      - mongo-telegram
+    volumes:
+      - telegram_sessions:/app/sessions
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SESSION_DIR: /app/sessions
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-telegram:27017/mydatabase
+      SPRING_AUTOCONFIGURE_EXCLUDE: "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration"
+      GRPC_PORT: 9090
+
+  data_cleaner:
+    build: ./Filter/
+    container_name: data_cleaner
+    restart: always
+    depends_on: 
+      - kafka
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      GIGACHAT_AUTH_KEY: ***
+  approval:
+    build: ./ApprovalService/
+    container_name: approval
+    restart: always
+    depends_on: 
+      - kafka
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      GRPC_PORT: 6565
 
 
-***REMOVED***zookeeper:
-***REMOVED******REMOVED***image: confluentinc/cp-zookeeper:7.5.0
-***REMOVED******REMOVED***environment:
-***REMOVED******REMOVED******REMOVED***ZOOKEEPER_CLIENT_PORT: 2181
-***REMOVED******REMOVED******REMOVED***ZOOKEEPER_TICK_TIME: 2000
-***REMOVED******REMOVED***ports:
-***REMOVED******REMOVED******REMOVED***- "2181:2181"
+  crm:
+    build: ./CRM/
+    container_name: crm-app
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crm
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      TELEGRAM_GRPC_HOST: telegram
+      TELEGRAM_GRPC_PORT: 9090
+      APPROVAL_GRPC_HOST: approval
+      APPROVAL_GRPC_PORT: 6565
+    depends_on:
+      - postgres
+      - kafka
+      - telegram
+      - approval
+    ports:
+      - "80:8080"
 
-***REMOVED***kafka:
-***REMOVED******REMOVED***image: confluentinc/cp-kafka:7.5.0
-***REMOVED******REMOVED***depends_on:
-***REMOVED******REMOVED******REMOVED***- zookeeper
-***REMOVED******REMOVED***ports:
-***REMOVED******REMOVED******REMOVED***- "9092:9092"
-***REMOVED******REMOVED******REMOVED***- "29092:29092"
-***REMOVED******REMOVED***environment:
-***REMOVED******REMOVED******REMOVED***KAFKA_BROKER_ID: 1
-***REMOVED******REMOVED******REMOVED***KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-***REMOVED******REMOVED******REMOVED***KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-***REMOVED******REMOVED******REMOVED***KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
-***REMOVED******REMOVED******REMOVED***KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-***REMOVED***
-***REMOVED***telegram_parser:
-***REMOVED******REMOVED***build: ./TelegramParser/
-***REMOVED******REMOVED***container_name: telegram_parser
-***REMOVED******REMOVED***restart: always
-***REMOVED******REMOVED***depends_on: 
-***REMOVED******REMOVED******REMOVED***- kafka
-***REMOVED******REMOVED***ports:
-***REMOVED******REMOVED******REMOVED***- "8080:8080"
-
-***REMOVED***crm:
-***REMOVED******REMOVED***build: ./CRM/
-***REMOVED******REMOVED***container_name: crm-app
-***REMOVED******REMOVED***restart: always
-***REMOVED******REMOVED***environment:
-***REMOVED******REMOVED******REMOVED***SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crm
-***REMOVED******REMOVED******REMOVED***SPRING_DATASOURCE_USERNAME: postgres
-***REMOVED******REMOVED******REMOVED***SPRING_DATASOURCE_PASSWORD: postgres
-***REMOVED******REMOVED***depends_on:
-***REMOVED******REMOVED******REMOVED***- postgres
-***REMOVED******REMOVED******REMOVED***- kafka
-***REMOVED******REMOVED***ports:
-***REMOVED******REMOVED******REMOVED***- "80:8080"
-
-***REMOVED***
-***REMOVED***pg_crm_data:
+volumes:
+  pg_crm_data:
+  telegram_sessions:
+  mongo_telegram_data:

@@ -1,0 +1,24 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer:
+      group-id: poster-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+  application:
+    name: TelegramParser
+  grpc:
+    server:
+      port: ${GRPC_PORT:9090}
+api_id: ${API_ID:3969182}
+api_hash: ${API_HASH:707e2ae05e8a8749e42b688bd61c5fc5}
+session_dir: ${SESSION_DIR:/app/sessions}
+s3:
+  bucket-name: ${S3_BUCKET_NAME:b3706ead-a8999cb2-f5d9-4e45-972c-604e832e08d7}
+  endpoint: ${S3_ENDPOINT:https://s3.twcstorage.ru}
+  access-key: ${S3_ACCESS_KEY:U0E3Q20407JN8P7Y74H4}
+  secret-key: ${S3_ACCESS_KEY:sJtQNqUslJLZxPYDO84XdTDrt2LSqQNOgwbfQYIH}

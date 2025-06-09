@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option java_package = "ru.arklual.telegramparser.dto.protobuf";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+import "post.proto";
+
+message Flow {
+  optional string id = 1;
+  string teamId = 2;
+  post.Source source = 3;
+  repeated post.Sink sinks = 4;
+  repeated post.Filter filters = 5;
+  bool requiresModeration = 6;
+  google.protobuf.Timestamp updatedAt = 7;
+}
+
+message CreateFlowRequest {
+  Flow flow = 1;
+}
+message CreateFlowResponse {
+  Flow flow = 1;
+}
+
+message GetFlowRequest {
+  string id = 1;
+}
+message GetFlowResponse {
+  Flow flow = 1;
+}
+
+message UpdateFlowRequest {
+  Flow flow = 1;
+}
+message UpdateFlowResponse {
+  Flow flow = 1;
+}
+
+message DeleteFlowRequest {
+  string id = 1;
+}
+message DeleteFlowResponse {
+  bool success = 1;
+}
+
+message ListFlowsRequest {
+  string teamId = 1;
+}
+message ListFlowsResponse {
+  repeated Flow flows = 1;
+}
+
+service FlowService {
+  rpc CreateFlow(CreateFlowRequest)   returns (CreateFlowResponse);
+  rpc GetFlow   (GetFlowRequest)      returns (GetFlowResponse);
+  rpc UpdateFlow(UpdateFlowRequest)   returns (UpdateFlowResponse);
+  rpc DeleteFlow(DeleteFlowRequest)   returns (DeleteFlowResponse);
+  rpc ListFlows (ListFlowsRequest)    returns (ListFlowsResponse);
+}
